@@ -1,0 +1,519 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package view;
+
+import java.io.FileNotFoundException;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
+import uyen.util.FileHelper;
+
+/**
+ *
+ * @author HP
+ */
+public class MainJFrame extends javax.swing.JFrame {
+
+    private boolean isNewFile;
+    private boolean findDown;
+    private String filepath;
+    private UndoManager um = null;
+
+    /**
+     * Creates new form MainJFrame
+     */
+    public MainJFrame() {
+        initComponents();
+        setIntialValue();
+    }
+
+    private void setIntialValue() {
+        isNewFile = true;
+        filepath = "";
+        findDown = true;
+        um = new UndoManager();
+    }
+
+    private boolean verifySave() {
+        int result;
+        if (!isNewFile) {
+            result = JOptionPane.showConfirmDialog(this, "Do you want to save change to " + filepath + "?");
+            if (result == JOptionPane.YES_OPTION) {
+                btnSaveActionPerformed(null);
+            } else if (result == JOptionPane.CANCEL_OPTION) {
+                return false;
+            }
+
+        } else {
+            result = JOptionPane.showConfirmDialog(this, "Do you want to save change to " + filepath + "?");
+            if (result == JOptionPane.YES_OPTION) {
+                btnSaveAsActionPerformed(null);
+            } else if (result == JOptionPane.CANCEL_OPTION) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void findText(String findString) {
+        String text = txtText.getText();
+        int posStart = txtText.getCaretPosition();
+        int pos;
+        if (findDown) {
+            pos = text.indexOf(findString, posStart);
+            if (pos == -1) {
+                posStart = 0;
+                pos = text.indexOf(findString, posStart);
+                if (pos == -1) {
+                    JOptionPane.showMessageDialog(this, "Not found!");
+                    txtText.setCaretPosition(posStart);
+                    return;
+                }
+            }
+            txtText.select(pos, pos + findString.length());
+        } else {
+            if (txtText.getSelectedText() != null) {
+                posStart -= txtText.getSelectedText().length();
+            }
+            text = text.substring(0, posStart);
+            pos = text.lastIndexOf(findString);
+            if (pos == -1) {
+                posStart = 0;
+                pos = text.indexOf(findString, posStart);
+                if (pos == -1) {
+                    JOptionPane.showMessageDialog(this, "Not found!");
+                    txtText.setCaretPosition(posStart);
+                    return;
+                }
+            }
+            txtText.select(pos, pos + findString.length());
+        }
+    }
+
+    public void replaceText(String oldString, String newString) {
+        if (txtText.getSelectedText() != null) {
+            txtText.replaceSelection(newString);
+        }
+
+        String text = txtText.getText();
+        int posStart = txtText.getCaretPosition();
+        int pos = text.indexOf(oldString, posStart);
+        if (pos == -1) {
+            posStart = 0;
+            pos = text.indexOf(oldString, posStart);
+            if (pos == -1) {
+                JOptionPane.showMessageDialog(this, "Not found!");
+                return;
+            }
+        }
+        txtText.select(pos, pos + newString.length());
+    }
+
+    public void replaceAll(String oldString, String newString) {
+        String text = txtText.getText();
+        txtText.setText(text.replaceAll(oldString, newString));
+    }
+
+    public boolean isFindDown() {
+        return findDown;
+    }
+
+    public void setFindDown(boolean findDown) {
+        this.findDown = findDown;
+    }
+
+    public JTextArea getTxtText() {
+        return txtText;
+    }
+
+    public void setTxtText(JTextArea txtText) {
+        this.txtText = txtText;
+    }
+
+    private String validateFilepath(String filepath) {
+        String replace = filepath;
+        if (!containsOnce(filepath, ".txt")) {
+            replace = filepath.replace(".txt", "");
+            replace += ".txt";
+        }
+        return replace;
+    }
+
+    private boolean containsOnce(final String s, final CharSequence substring) {
+        final String substring0 = substring.toString();
+        final int i = s.indexOf(substring0);
+        return i != -1 && i == s.lastIndexOf(substring0);
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtText = new javax.swing.JTextArea();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        btnNew = new javax.swing.JMenuItem();
+        btnOpen = new javax.swing.JMenuItem();
+        btnSave = new javax.swing.JMenuItem();
+        btnSaveAs = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        btnExit = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        btnUndo = new javax.swing.JMenuItem();
+        btnRedo = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
+        btnCut = new javax.swing.JMenuItem();
+        btnCopy = new javax.swing.JMenuItem();
+        btnPaste = new javax.swing.JMenuItem();
+        jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        btnFind = new javax.swing.JMenuItem();
+        btnReplace = new javax.swing.JMenuItem();
+        jSeparator4 = new javax.swing.JPopupMenu.Separator();
+        btnChangeFont = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("MyTextEditorMTE");
+
+        txtText.setColumns(20);
+        txtText.setRows(5);
+        jScrollPane1.setViewportView(txtText);
+
+        jMenu1.setText("File");
+
+        btnNew.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
+        btnNew.setText("New");
+        btnNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNewActionPerformed(evt);
+            }
+        });
+        jMenu1.add(btnNew);
+
+        btnOpen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        btnOpen.setText("Open");
+        btnOpen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOpenActionPerformed(evt);
+            }
+        });
+        jMenu1.add(btnOpen);
+
+        btnSave.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
+        jMenu1.add(btnSave);
+
+        btnSaveAs.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        btnSaveAs.setText("Save as");
+        btnSaveAs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveAsActionPerformed(evt);
+            }
+        });
+        jMenu1.add(btnSaveAs);
+        jMenu1.add(jSeparator1);
+
+        btnExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
+        btnExit.setText("Exit");
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitActionPerformed(evt);
+            }
+        });
+        jMenu1.add(btnExit);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Edit");
+
+        btnUndo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
+        btnUndo.setText("Undo");
+        btnUndo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUndoActionPerformed(evt);
+            }
+        });
+        jMenu2.add(btnUndo);
+
+        btnRedo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
+        btnRedo.setText("Redo");
+        btnRedo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRedoActionPerformed(evt);
+            }
+        });
+        jMenu2.add(btnRedo);
+        jMenu2.add(jSeparator2);
+
+        btnCut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_MASK));
+        btnCut.setText("Cut");
+        btnCut.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCutActionPerformed(evt);
+            }
+        });
+        jMenu2.add(btnCut);
+
+        btnCopy.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_MASK));
+        btnCopy.setText("Copy");
+        btnCopy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCopyActionPerformed(evt);
+            }
+        });
+        jMenu2.add(btnCopy);
+
+        btnPaste.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, java.awt.event.InputEvent.CTRL_MASK));
+        btnPaste.setText("Paste");
+        btnPaste.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPasteActionPerformed(evt);
+            }
+        });
+        jMenu2.add(btnPaste);
+        jMenu2.add(jSeparator3);
+
+        btnFind.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
+        btnFind.setText("Find");
+        btnFind.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFindActionPerformed(evt);
+            }
+        });
+        jMenu2.add(btnFind);
+
+        btnReplace.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.event.InputEvent.CTRL_MASK));
+        btnReplace.setText("Replace");
+        btnReplace.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReplaceActionPerformed(evt);
+            }
+        });
+        jMenu2.add(btnReplace);
+        jMenu2.add(jSeparator4);
+
+        btnChangeFont.setText("Change font");
+        btnChangeFont.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnChangeFontActionPerformed(evt);
+            }
+        });
+        jMenu2.add(btnChangeFont);
+
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 650, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 409, Short.MAX_VALUE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        if (!isNewFile) {
+            try {
+                String content = txtText.getText();
+                FileHelper.saveFile(content, validateFilepath(filepath));
+            } catch (FileNotFoundException e) {
+                System.out.println(e.getMessage());
+            }
+        } else {
+            btnSaveAsActionPerformed(evt);
+        }
+
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
+        // TODO add your handling code here:
+        if (!verifySave()) {
+            return;
+        }
+        isNewFile = true;
+        txtText.setText("");
+    }//GEN-LAST:event_btnNewActionPerformed
+
+    private void btnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenActionPerformed
+        // TODO add your handling code here:
+        if (!verifySave()) {
+            return;
+        }
+        JFileChooser open = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt");
+        open.setFileFilter(filter);
+        int option = open.showOpenDialog(this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            try {
+                FileHelper.loadFile(open, txtText);
+            } catch (FileNotFoundException e) {
+                JOptionPane.showMessageDialog(this, "Can't open file!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnOpenActionPerformed
+
+    private void btnSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveAsActionPerformed
+        // TODO add your handling code here:
+        JFileChooser save = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt");
+        save.setFileFilter(filter);
+        int option = save.showSaveDialog(this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            try {
+                String content = txtText.getText();
+                filepath = save.getSelectedFile().getPath() + ".txt";
+                FileHelper.saveFile(content, validateFilepath(filepath));
+                isNewFile = false;
+                setTitle(save.getSelectedFile().getName());
+            } catch (FileNotFoundException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnSaveAsActionPerformed
+
+    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
+        // TODO add your handling code here:
+        if (!verifySave()) {
+            return;
+        }
+        System.exit(0);
+    }//GEN-LAST:event_btnExitActionPerformed
+
+    private void btnUndoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUndoActionPerformed
+        // TODO add your handling code here:
+        if (um.canUndo()) {
+            try {
+                um.undo();
+            } catch (CannotUndoException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnUndoActionPerformed
+
+    private void btnRedoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRedoActionPerformed
+        // TODO add your handling code here:
+        if (um.canRedo()) {
+            try {
+                um.redo();
+            } catch (CannotRedoException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnRedoActionPerformed
+
+    private void btnCutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCutActionPerformed
+        // TODO add your handling code here:
+        txtText.cut();
+    }//GEN-LAST:event_btnCutActionPerformed
+
+    private void btnCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyActionPerformed
+        // TODO add your handling code here:
+        txtText.copy();
+    }//GEN-LAST:event_btnCopyActionPerformed
+
+    private void btnPasteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasteActionPerformed
+        // TODO add your handling code here:
+        txtText.paste();
+    }//GEN-LAST:event_btnPasteActionPerformed
+
+    private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
+        // TODO add your handling code here:
+        new FindDialog(this).setVisible(true);
+    }//GEN-LAST:event_btnFindActionPerformed
+
+    private void btnReplaceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReplaceActionPerformed
+        // TODO add your handling code here:
+        new ReplaceDialog(this).setVisible(true);
+    }//GEN-LAST:event_btnReplaceActionPerformed
+
+    private void btnChangeFontActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChangeFontActionPerformed
+        // TODO add your handling code here:
+        new FontDialog(this).setVisible(true);
+    }//GEN-LAST:event_btnChangeFontActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(MainJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(MainJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(MainJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(MainJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new MainJFrame().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem btnChangeFont;
+    private javax.swing.JMenuItem btnCopy;
+    private javax.swing.JMenuItem btnCut;
+    private javax.swing.JMenuItem btnExit;
+    private javax.swing.JMenuItem btnFind;
+    private javax.swing.JMenuItem btnNew;
+    private javax.swing.JMenuItem btnOpen;
+    private javax.swing.JMenuItem btnPaste;
+    private javax.swing.JMenuItem btnRedo;
+    private javax.swing.JMenuItem btnReplace;
+    private javax.swing.JMenuItem btnSave;
+    private javax.swing.JMenuItem btnSaveAs;
+    private javax.swing.JMenuItem btnUndo;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JPopupMenu.Separator jSeparator3;
+    private javax.swing.JPopupMenu.Separator jSeparator4;
+    private javax.swing.JTextArea txtText;
+    // End of variables declaration//GEN-END:variables
+}
